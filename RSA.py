@@ -65,12 +65,12 @@ p = st.number_input("p (tub son):", min_value=2, step=1)
 q = st.number_input("q (tub son):", min_value=2, step=1)
 
 # Global o'zgaruvchilar
-public = None
-private = None
+publickey = None
+privatekey = None
 
 if st.button("Kalit yaratish"):
     try:
-        public, private, n, phi = generate_key_pair(p, q)
+        publickey, privatekey, n, phi = generate_key_pair(p, q)
         st.write(f"🔑 Ochiq kalit: {public}")
         st.write(f"🔐 Maxfiy kalit: {private}")
         st.write(f"📌 Ko'paytma (n): {n}")
@@ -82,10 +82,10 @@ if st.button("Kalit yaratish"):
 message = st.text_area("Xabarni kiriting:")
 
 if st.button("Shifrlash"):
-    if public is not None and message:
+    if publickey is not None and message:
         encrypted_message = encrypt(public, message)
         st.write(f"🔐 Shifrlangan xabar (ASCII kodlari): {encrypted_message}")
-    elif public is None:
+    elif publickey is None:
         st.warning("Iltimos, avval kalitlarni yarating!")
     else:
         st.warning("Iltimos, xabarni kiriting!")
