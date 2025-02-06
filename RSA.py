@@ -1,13 +1,11 @@
 import streamlit as st
 import random
+from math import gcd
+from typing import Tuple, List
 
 # === Foydali Funksiyalar ===
-def gcd(a, b):
-    while b:
-        a, b = b, a % b
-    return a
-
-def multiplicative_inverse(e, phi):
+def multiplicative_inverse(e: int, phi: int) -> int:
+    """Multiplikativ teskari funksiyasi"""
     d, x1, x2, y1 = 0, 0, 1, 1
     temp_phi = phi
     while e > 0:
@@ -21,26 +19,26 @@ def multiplicative_inverse(e, phi):
     if temp_phi == 1:
         return d + phi
 
-def is_prime(num):
-    if num < 2 or (num > 2 and num % 2 == 0):
+def is_prime(n: int) -> bool:
+    """Tub sonni tekshirish"""
+    if n < 2:
         return False
-    for n in range(3, int(num**0.5) + 1, 2):
-        if num % n == 0:
+    for i in range(2, int(n**0.5) + 1):
+        if n % i == 0:
             return False
     return True
 
-def generate_random_prime(min_value=100, max_value=500):
+def generate_random_prime(min_value: int = 100, max_value: int = 500) -> int:
+    """Tasodifiy tub son yaratish"""
     while True:
         num = random.randint(min_value, max_value)
         if is_prime(num):
             return num
 
-def generate_key_pair(p, q):
-    if not (is_prime(p) and is_prime(q)):
-        raise ValueError("Har ikkala son tub bo'lishi kerak!")
+def generate_key_pair(p: int, q: int) -> Tuple[Tuple[int, int], Tuple[int, int], int, int]:
+    """Ochiq va maxfiy kalitlarni yaratish"""
     if p == q:
         raise ValueError("p va q bir xil bo'lmasligi kerak!")
-
     n = p * q
     phi = (p - 1) * (q - 1)
 
@@ -52,16 +50,16 @@ def generate_key_pair(p, q):
 
     return ((e, n), (d, n), n, phi)
 
-def encrypt(pk, plaintext):
-    key, n = pk
-    encrypted_data = [pow(ord(char), key, n) for char in plaintext]
-    return encrypted_data
+def encrypt(public_key: Tuple[int, int], plaintext: str) -> List[int]:
+    """Xabarni shifrlash"""
+    key, n = public_key
+    return [pow(ord(char), key, n) for char in plaintext]
 
-def decrypt(pk, ciphertext):
-    key, n = pk
+def decrypt(private_key: Tuple[int, int], ciphertext: List[int]) -> str:
+    """Shifrlangan xabarni deshifrlash"""
+    key, n = private_key
     decrypted_chars = [pow(char, key, n) for char in ciphertext]
-    decrypted_text = ''.join([chr(code) for code in decrypted_chars])
-    return decrypted_text, decrypted_chars
+    return ''.join([chr(code) for code in decrypted_chars])
 
 # === Streamlit Interfeysi ===
 st.title("RSA Shifrlash Dasturi")
@@ -114,9 +112,8 @@ encrypted_input = st.text_area("Shifrlangan xabar (ASCII kodlari):", help="Shifr
 if st.button("Deshifrlash"):
     if privatekey is not None and encrypted_input:
         encrypted_data = list(map(int, encrypted_input.split(',')))
-        decrypted_message, decrypted_ascii = decrypt(privatekey, encrypted_data)
+        decrypted_message = decrypt(privatekey, encrypted_data)
         st.write(f"🔓 Deshifrlangan xabar: {decrypted_message}")
-        st.write(f"🔢 Deshifrlangan ASCII kodlari: {decrypted_ascii}")
     elif privatekey is None:
         st.warning("Iltimos, avval kalitlarni yarating!")
     else:
