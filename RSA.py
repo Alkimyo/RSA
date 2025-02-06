@@ -64,6 +64,10 @@ st.title("RSA Shifrlash Dasturi")
 p = st.number_input("p (tub son):", min_value=2, step=1)
 q = st.number_input("q (tub son):", min_value=2, step=1)
 
+# Global o'zgaruvchilar
+public = None
+private = None
+
 if st.button("Kalit yaratish"):
     try:
         public, private, n, phi = generate_key_pair(p, q)
@@ -78,9 +82,11 @@ if st.button("Kalit yaratish"):
 message = st.text_area("Xabarni kiriting:")
 
 if st.button("Shifrlash"):
-    if message:
+    if public is not None and message:
         encrypted_message = encrypt(public, message)
         st.write(f"🔐 Shifrlangan xabar (ASCII kodlari): {encrypted_message}")
+    elif public is None:
+        st.warning("Iltimos, avval kalitlarni yarating!")
     else:
         st.warning("Iltimos, xabarni kiriting!")
 
@@ -88,10 +94,12 @@ if st.button("Shifrlash"):
 encrypted_input = st.text_area("Shifrlangan xabar (ASCII kodlari):", help="Shifrlangan ASCII kodlarini kiriting.")
 
 if st.button("Deshifrlash"):
-    if encrypted_input:
+    if private is not None and encrypted_input:
         encrypted_data = list(map(int, encrypted_input.split(',')))
         decrypted_message, decrypted_ascii = decrypt(private, encrypted_data)
         st.write(f"🔓 Deshifrlangan xabar: {decrypted_message}")
         st.write(f"🔢 Deshifrlangan ASCII kodlari: {decrypted_ascii}")
+    elif private is None:
+        st.warning("Iltimos, avval kalitlarni yarating!")
     else:
         st.warning("Iltimos, shifrlangan xabarni kiriting!")
