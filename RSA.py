@@ -71,8 +71,8 @@ privatekey = None
 if st.button("Kalit yaratish"):
     try:
         publickey, privatekey, n, phi = generate_key_pair(p, q)
-        st.write(f"🔑 Ochiq kalit: {public}")
-        st.write(f"🔐 Maxfiy kalit: {private}")
+        st.write(f"🔑 Ochiq kalit: {publickey}")
+        st.write(f"🔐 Maxfiy kalit: {privatekey}")
         st.write(f"📌 Ko'paytma (n): {n}")
         st.write(f"📌 Euler funksiyasi (φ(n)): {phi}")
     except ValueError as e:
