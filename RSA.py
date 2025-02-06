@@ -29,6 +29,12 @@ def is_prime(num):
             return False
     return True
 
+def generate_random_prime(min_value=100, max_value=500):
+    while True:
+        num = random.randint(min_value, max_value)
+        if is_prime(num):
+            return num
+
 def generate_key_pair(p, q):
     if not (is_prime(p) and is_prime(q)):
         raise ValueError("Har ikkala son tub bo'lishi kerak!")
@@ -60,9 +66,17 @@ def decrypt(pk, ciphertext):
 # === Streamlit Interfeysi ===
 st.title("RSA Shifrlash Dasturi")
 
-# P va Q qiymatlarini olish
-p = st.number_input("p (tub son):", min_value=2, step=1)
-q = st.number_input("q (tub son):", min_value=2, step=1)
+# P va Q qiymatlarini olish, random yaratish (tub sonlar)
+random_p = generate_random_prime(min_value=100, max_value=500)
+random_q = generate_random_prime(min_value=100, max_value=500)
+
+# P va Q qiymatlarini ko'rsatish
+st.write(f"Generated Random p (tub son): {random_p}")
+st.write(f"Generated Random q (tub son): {random_q}")
+
+# Foydalanuvchi uchun manual kiritish imkoniyati
+p = st.number_input("p (tub son)ni o'zgartiring:", value=random_p, min_value=2, step=1)
+q = st.number_input("q (tub son)ni o'zgartiring:", value=random_q, min_value=2, step=1)
 
 # Global o'zgaruvchilar
 publickey = None
@@ -70,11 +84,15 @@ privatekey = None
 
 if st.button("Kalit yaratish"):
     try:
-        publickey, privatekey, n, phi = generate_key_pair(p, q)
-        st.write(f"🔑 Ochiq kalit: {publickey}")
-        st.write(f"🔐 Maxfiy kalit: {privatekey}")
-        st.write(f"📌 Ko'paytma (n): {n}")
-        st.write(f"📌 Euler funksiyasi (φ(n)): {phi}")
+        # P va Q teng emasligini tekshirish
+        if p == q:
+            st.error("Xato! p va q bir xil bo'lmasligi kerak!")
+        else:
+            publickey, privatekey, n, phi = generate_key_pair(p, q)
+            st.write(f"🔑 Ochiq kalit: {publickey}")
+            st.write(f"🔐 Maxfiy kalit: {privatekey}")
+            st.write(f"📌 Ko'paytma (n): {n}")
+            st.write(f"📌 Euler funksiyasi (φ(n)): {phi}")
     except ValueError as e:
         st.error(str(e))
 
@@ -83,7 +101,7 @@ message = st.text_area("Xabarni kiriting:")
 
 if st.button("Shifrlash"):
     if publickey is not None and message:
-        encrypted_message = encrypt(public, message)
+        encrypted_message = encrypt(publickey, message)
         st.write(f"🔐 Shifrlangan xabar (ASCII kodlari): {encrypted_message}")
     elif publickey is None:
         st.warning("Iltimos, avval kalitlarni yarating!")
@@ -94,12 +112,12 @@ if st.button("Shifrlash"):
 encrypted_input = st.text_area("Shifrlangan xabar (ASCII kodlari):", help="Shifrlangan ASCII kodlarini kiriting.")
 
 if st.button("Deshifrlash"):
-    if private is not None and encrypted_input:
+    if privatekey is not None and encrypted_input:
         encrypted_data = list(map(int, encrypted_input.split(',')))
-        decrypted_message, decrypted_ascii = decrypt(private, encrypted_data)
+        decrypted_message, decrypted_ascii = decrypt(privatekey, encrypted_data)
         st.write(f"🔓 Deshifrlangan xabar: {decrypted_message}")
         st.write(f"🔢 Deshifrlangan ASCII kodlari: {decrypted_ascii}")
-    elif private is None:
+    elif privatekey is None:
         st.warning("Iltimos, avval kalitlarni yarating!")
     else:
         st.warning("Iltimos, shifrlangan xabarni kiriting!")
